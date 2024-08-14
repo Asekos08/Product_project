@@ -12,23 +12,23 @@ class ProductDetailView(APIView):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
-                'city_id',
-                openapi.IN_QUERY,
-                description="ID of the city",
-                type=openapi.TYPE_INTEGER,
-                required=True,
+                'City-ID', 
+                openapi.IN_HEADER, 
+                description="ID города для фильтрации фотографий", 
+                type=openapi.TYPE_INTEGER
             ),
             openapi.Parameter(
-                'product_name',
-                openapi.IN_QUERY,
-                description="Name of the product",
+                'product_name', 
+                openapi.IN_QUERY, 
+                description="Название продукта для поиска", 
                 type=openapi.TYPE_STRING,
-                required=True,
+                required=True
             )
-        ]
+        ],
+        responses={200: ProductSerializer}
     )
     def get(self, request, *args, **kwargs):
-        city_id = request.query_params.get('city_id')
+        city_id = request.headers.get('city_id')
         product_name = request.query_params.get('product_name')
 
         if not product_name:
@@ -52,7 +52,6 @@ class ProductDetailView(APIView):
             photos = product.photos.filter(city__isnull=True)
 
         photo_serializer = PhotoSerializer(photos, many=True)
-
         product_data = ProductSerializer(product).data
         product_data['photos'] = photo_serializer.data 
 
